@@ -1,0 +1,82 @@
+services:
+  frontend:
+    build:
+      context: frontend
+    container_name: chronos-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - directus
+      - backend
+    env_file: .env
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile.dev
+    container_name: chronos-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    environment:
+      - ENV=dev
+    env_file: .env
+    depends_on:
+      - postgres_db
+
+  caldav:
+    build: caldav
+    volumes:
+      - ./caldav/config:/etc/radicale/config
+      - ./caldav/mymysqlcalendar.py:/usr/lib/python3.11/site-packages/mymysqlcalendar.py
+    environment:
+      - PYTHONPATH=/usr/lib/python3.11/site-packages
+    ports:
+      - "5232:5232"
+    depends_on:
+      - postgres_db
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - db-net
+
+  directus:
+    image: directus/directus:latest
+    container_name: directus
+    restart: always
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: some_random_key
+      SECRET: some_super_secret_value
+      DB_CLIENT: pg
+      DB_HOST: postgres_db
+      DB_PORT: 5432
+      DB_DATABASE: mydatabase
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin123
+    env_file: .env
+    depends_on:
+      - postgres_db
+    networks:
+      - db-net
+
+volumes:
+  postgres_data:
+
+networks:
+  db-net:
+    driver: bridge

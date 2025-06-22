@@ -1,0 +1,24 @@
+# 🐍 Basis-Image mit Python
+FROM python:3.11-slim
+
+# 🧪 Environment für saubere Logs & schnelleren Dev
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# 📁 Arbeitsverzeichnis
+WORKDIR /app
+
+# 🧰 Optional: OS-Abhängigkeiten
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# 📦 Anforderungen installieren
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 🧪 FastAPI & Uvicorn Dev-Server verwenden
+# 📌 Code Mounting per Volume, daher COPY . . hier nicht nötig
+
+# 🚀 Start mit --reload (Hot Reloading)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

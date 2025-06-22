@@ -1,0 +1,11 @@
+[server]
+hosts = 0.0.0.0:5232
+
+[rights]
+type = owner_only
+
+[auth]
+type = none
+
+[storage]
+type = mymysqlcalendar
