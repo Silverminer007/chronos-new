@@ -1,4 +1,4 @@
-CREATE TABLE events -- Organizer ist der Besitzer des Kalenders zu dem der Termin gehört
+CREATE TABLE events -- Organizer ist der Besitzer des Kalenders, zu dem der Termin gehört
 (
     id            SERIAL PRIMARY KEY,                           -- interne ID
     uid           VARCHAR(255) NOT NULL UNIQUE,                 -- iCalendar UID (CalDAV-Referenz)
@@ -21,7 +21,7 @@ CREATE TABLE events -- Organizer ist der Besitzer des Kalenders zu dem der Termi
     created       TIMESTAMP DEFAULT NOW(),                      -- Erstellungszeitpunkt
     url           TEXT,                                         -- Optionale URL
     attach        TEXT[],                                       -- Liste von Anhängen (URLs oder Pfade)
-    calendar      INT NOT NULL REFERENCES calendar(id) ON DELETE CASCADE,
+    calendar      INT          NOT NULL REFERENCES calendar (id) ON DELETE CASCADE,
 );
 
 CREATE TABLE event_instances
@@ -44,28 +44,28 @@ CREATE TABLE event_overrides
 
 CREATE TABLE calendar
 (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    owner INT NOT NULL REFERENCES user(id) ON DELETE CASCADE
+    id    SERIAL PRIMARY KEY,
+    name  TEXT NOT NULL UNIQUE,
+    owner INT  NOT NULL REFERENCES user (id) ON DELETE CASCADE
 )
 
 CREATE TABLE calendar_share
 (
-    id SERIAL PRIMARY KEY,
-    calendar_id INT NOT NULL REFERENCES calendar(id) ON DELETE CASCADE,
-    user_id INT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    id             SERIAL PRIMARY KEY,
+    calendar_id    INT     NOT NULL REFERENCES calendar (id) ON DELETE CASCADE,
+    user_id        INT     NOT NULL REFERENCES user (id) ON DELETE CASCADE,
     classification ENUM ('PUBLIC', 'PRIVATE', 'CONFIDENTIAL'),
-    edit BOOLEAN NOT NULL DEFAULT true
+    edit           BOOLEAN NOT NULL DEFAULT true
 )
 
 CREATE TABLE attendees
 (
-    id        SERIAL PRIMARY KEY,
-    event_instance_id INT NOT NULL REFERENCES event_instances(id) ON DELETE CASCADE,
-    attendee  SERIAL       NOT NULL REFERENCES user (id) ON DELETE CASCADE,
-    partstat  ENUM ('ACCEPTED', 'DECLINED', 'NEEDS-ACTION') DEFAULT 'NEEDS-ACTION',
-    role      VARCHAR(20),
-    rsvp      BOOLEAN DEFAULT FALSE
+    id                SERIAL PRIMARY KEY,
+    event_instance_id INT    NOT NULL REFERENCES event_instances (id) ON DELETE CASCADE,
+    attendee          SERIAL NOT NULL REFERENCES user (id) ON DELETE CASCADE,
+    partstat          ENUM ('ACCEPTED', 'DECLINED', 'NEEDS-ACTION') DEFAULT 'NEEDS-ACTION',
+    role              VARCHAR(20),
+    rsvp              BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE user
@@ -79,21 +79,21 @@ CREATE TABLE user
 
 CREATE TABLE group
 (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    owner INT NOT NULL REFERENCES user(id) ON DELETE CASCADE
+    id    SERIAL PRIMARY KEY,
+    name  TEXT NOT NULL UNIQUE,
+    owner INT  NOT NULL REFERENCES user (id) ON DELETE CASCADE
 )
 
 CREATE TABLE group_members -- Wenn eine Gruppe zu einem Termin eingeladen wird, werden dadurch alle Mitglieder eingeladen
 (
-    id SERIAL PRIMARY KEY,
-    group_id INT NOT NULL REFERENCES group(id) ON DELETE CASCADE,
-    user_id INT NOT NULL REFERENCES user(id) ON DELETE CASCADE
+    id       SERIAL PRIMARY KEY,
+    group_id INT NOT NULL REFERENCES group (id) ON DELETE CASCADE,
+    user_id  INT NOT NULL REFERENCES user (id) ON DELETE CASCADE
 )
 
 CREATE TABLE contacts -- Man kann von allen Kontakten die öffentlichen Termine sehen
 (
-    id SERIAL PRIMARY KEY,
-    user1 INT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
-    user2 INT NOT NULL REFERENCES user(id) ON DELETE CASCADE
+    id    SERIAL PRIMARY KEY,
+    user1 INT NOT NULL REFERENCES user (id) ON DELETE CASCADE,
+    user2 INT NOT NULL REFERENCES user (id) ON DELETE CASCADE
 )
